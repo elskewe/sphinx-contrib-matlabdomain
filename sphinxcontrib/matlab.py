@@ -432,8 +432,8 @@ class MatClassmember(MatObject):
                     return translation("%s (in module %s)") % (name, modname)
                 else:
                     return name
+            member_type = "attribute" if self.objtype == "attribute" else "enumeration"
             if modname and add_modules:
-                member_type = "attribute" if self.objtype == "attribute" else "enumeration"
                 return translation("%s (%s.%s %s)") % (
                     attrname,
                     modname,
@@ -441,7 +441,6 @@ class MatClassmember(MatObject):
                     member_type,
                 )
             else:
-                member_type = "attribute" if self.objtype == "attribute" else "enumeration"
                 return translation("%s (%s %s)") % (attrname, clsname, member_type)
         else:
             return ""
