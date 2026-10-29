@@ -214,7 +214,7 @@ q_arg = ML_LANG.query(
      (validation_functions
          [[(identifier) (function_call)] @validation_functions _]+
      )?
-     (default_value [(number) (identifier)])? @default
+    (default_value)? @default
      (comment)? @docstring
     )
 """
