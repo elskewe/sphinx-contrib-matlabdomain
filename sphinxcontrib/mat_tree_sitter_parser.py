@@ -181,7 +181,7 @@ q_fun = ML_LANG.query(
     [(arguments_statement) @argblocks _]*
     .
     (comment)? @docstring
-    )
+    ) @function
 """
 )
 
@@ -308,6 +308,7 @@ class MatFunctionParser:
         """Parse Function definition."""
         self.encoding = encoding
         _, fun_match = q_fun.matches(root_node)[0]
+        fun_node = fun_match.get("function")
         self.name = fun_match.get("name").text.decode(
             self.encoding, errors="backslashreplace"
         )
@@ -335,10 +336,11 @@ class MatFunctionParser:
                 self.args[arg] = {}
 
         # parse out info from argument blocks
-        argblock_nodes = fun_match.get("argblocks")
-        if argblock_nodes is not None:
-            for argblock_node in argblock_nodes:
-                self._parse_argument_section(argblock_node)
+        argblock_nodes = [
+            node for node in fun_node.named_children if node.type == "arguments_statement"
+        ]
+        for argblock_node in argblock_nodes:
+            self._parse_argument_section(argblock_node)
 
         # get docstring
         docstring_node = fun_match.get("docstring")

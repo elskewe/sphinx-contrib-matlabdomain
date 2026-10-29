@@ -1154,6 +1154,7 @@ def test_argument_blocks_and_enumerations_render(app):
     assert "a1 (1, 1); double; default: 0" in text
     assert "the first input" in text
     assert "Output Arguments" in text
+    assert "Return three calculated outputs." in text
     assert "o3 (1, 1); double; {mustBePositive}" in text
     assert "MYENUM(1)" in text
     assert "MYENUM" in html

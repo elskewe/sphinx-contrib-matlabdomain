@@ -1,4 +1,5 @@
 function [o1, o2, o3] = f_with_output_argument_block(a1, a2)
+    % Return three calculated outputs.
     arguments(Output)
         o1(1,1) double % Output one
         o2(1,:) double % Another output
