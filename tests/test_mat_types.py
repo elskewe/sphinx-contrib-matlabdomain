@@ -1,5 +1,7 @@
 """Test mat_types module functions and methods."""
 
+import pickle
+
 import pytest
 
 from sphinxcontrib.mat_types import (
@@ -1140,6 +1142,21 @@ def app(make_app, rootdir):
     app = make_app(srcdir=srcdir)
     MatObject.basedir = app.config.matlab_src_dir
     return app
+
+
+def test_argument_blocks_and_enumerations_render(app):
+    app.builder.build_all()
+    html = (app.outdir / "index.html").read_text(encoding="utf-8")
+    doctree = pickle.loads((app.doctreedir / "index.doctree").read_bytes())
+    text = doctree.astext()
+
+    assert "Input Arguments" in text
+    assert "a1 (1, 1); double; default: 0" in text
+    assert "the first input" in text
+    assert "Output Arguments" in text
+    assert "o3 (1, 1); double; {mustBePositive}" in text
+    assert "MYENUM(1)" in text
+    assert "MYENUM" in html
 
 
 @pytest.fixture

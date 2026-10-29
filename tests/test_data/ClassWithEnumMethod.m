@@ -1,7 +1,7 @@
 classdef ClassWithEnumMethod
 
 enumeration
-MYENUM
+MYENUM(1)
 end
 
 methods

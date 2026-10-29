@@ -431,6 +431,16 @@ A matlab application (``.mlapp`` file)
 
 This is a reference to an application :app:`test_data.Application`
 
+Argument blocks and enumerations
+++++++++++++++++++++++++++++++++++
+
+.. autofunction:: test_data::f_with_input_argument_block
+
+.. autofunction:: test_data::f_with_output_argument_block
+
+.. autoclass:: test_data::ClassWithEnumMethod
+    :members:
+
 Indices and tables
 ==================
 

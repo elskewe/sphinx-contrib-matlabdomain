@@ -184,6 +184,37 @@ class MatlabDocumenter(PyDocumenter):
             for line, src in zip(more_content.data, more_content.items, strict=False):
                 self.add_line(line, src[0], src[1])
 
+    def add_argument_block_content(self):
+        for heading, arguments in (
+            (_("Input Arguments"), self.object.args),
+            (_("Output Arguments"), self.object.retv),
+        ):
+            if not arguments or not any(arguments.values()):
+                continue
+
+            self.add_line("", "<autodoc>")
+            self.add_line(f"**{heading}**", "<autodoc>")
+            self.add_line("", "<autodoc>")
+            for name, argument in arguments.items():
+                details = []
+                if size := argument.get("size"):
+                    details.append(f"({', '.join(size)})")
+                if typename := argument.get("type"):
+                    details.append(typename)
+                if validators := argument.get("validators"):
+                    details.append("{" + ", ".join(validators) + "}")
+                if (default := argument.get("default")) is not None:
+                    details.append(f"default: {default}")
+
+                term = f"* ``{name}``"
+                if details:
+                    term += " " + "; ".join(details)
+                self.add_line(term, "<autodoc>")
+                if docstring := argument.get("docstring"):
+                    for line in docstring.splitlines():
+                        self.add_line(f"  {line}", "<autodoc>")
+                self.add_line("", "<autodoc>")
+
     def class_object(self):
         # the associated MatClass object (for class, property and method documenters)
         return None
@@ -965,6 +996,10 @@ class MatFunctionDocumenter(MatDocstringSignatureMixin, MatModuleLevelDocumenter
         if self.object.args:
             return "(" + ", ".join(self.object.args) + ")"
 
+    def add_content(self, more_content, no_docstring=False):
+        super().add_content(more_content, no_docstring)
+        self.add_argument_block_content()
+
     def document_members(self, all_members=False):
         pass
 
@@ -1249,7 +1284,7 @@ class MatClassDocumenter(MatModuleLevelDocumenter):
         ]
 
         # container
-        if cons_names or prop_names or meth_names or other_names:
+        if cons_names or prop_names or enum_names or meth_names or other_names:
             self.add_line("", "<autodoc>")
             self.add_line(".. container:: members", "<autodoc>")
             self.add_line("", "<autodoc>")
@@ -1349,6 +1384,10 @@ class MatMethodDocumenter(MatDocstringSignatureMixin, MatClassLevelDocumenter):
                 return "(" + ", ".join(arglist[1:]) + ")"
             else:
                 return "(" + ", ".join(arglist) + ")"
+
+    def add_content(self, more_content, no_docstring=False):
+        super().add_content(more_content, no_docstring)
+        self.add_argument_block_content()
 
     def document_members(self, all_members=False):
         pass
@@ -1493,6 +1532,25 @@ class MatAttributeDocumenter(MatClassLevelDocumenter):
         docstrings = self.auto_link_methods(self.object.cls, docstrings)
         docstrings = self.auto_link_self(docstrings)
         return MatlabDocumenter.auto_link_all(self, docstrings)
+
+
+class MatEnumerationDocumenter(MatClassLevelDocumenter):
+    """Specialized Documenter subclass for enumeration values."""
+
+    objtype = "enum"
+    member_order = 60
+    priority = 10
+
+    @classmethod
+    def can_document_member(cls, member, membername, isattr, parent):  # noqa: ARG003 - required by Sphinx API
+        return isinstance(member, MatEnumeration)
+
+    def format_args(self):
+        if self.object.args:
+            return "(" + ", ".join(self.object.args) + ")"
+
+    def document_members(self, all_members=False):
+        pass
 
 
 class MatScriptDocumenter(MatModuleLevelDocumenter):

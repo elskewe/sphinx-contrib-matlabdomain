@@ -897,6 +897,7 @@ class MatEnumeration(MatObject):
     def __init__(self, name, cls, attrs):
         super().__init__(name)
         self.cls = cls
+        self.args = attrs["args"]
         self.docstring = attrs["docstring"]
 
     def ref_role(self):

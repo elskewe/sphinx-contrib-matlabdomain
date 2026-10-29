@@ -368,7 +368,7 @@ class MatClassmember(MatObject):
     """Description of a class member (methods, attributes)."""
 
     def needs_arglist(self):
-        return self.objtype.endswith("method")
+        return self.objtype.endswith("method") or self.objtype == "enum"
 
     def get_signature_prefix(self):
         if self.objtype == "staticmethod":
@@ -424,7 +424,7 @@ class MatClassmember(MatObject):
                 )
             else:
                 return translation("%s() (%s class method)") % (methname, clsname)
-        elif self.objtype == "attribute":
+        elif self.objtype in ("attribute", "enum"):
             try:
                 clsname, attrname = name.rsplit(".", 1)
             except ValueError:
@@ -433,13 +433,16 @@ class MatClassmember(MatObject):
                 else:
                     return name
             if modname and add_modules:
-                return translation("%s (%s.%s attribute)") % (
+                member_type = "attribute" if self.objtype == "attribute" else "enumeration"
+                return translation("%s (%s.%s %s)") % (
                     attrname,
                     modname,
                     clsname,
+                    member_type,
                 )
             else:
-                return translation("%s (%s attribute)") % (attrname, clsname)
+                member_type = "attribute" if self.objtype == "attribute" else "enumeration"
+                return translation("%s (%s %s)") % (attrname, clsname, member_type)
         else:
             return ""
 
@@ -670,6 +673,7 @@ class MATLABDomain(Domain):
         "classmethod": ObjType(translation("class method"), "meth", "obj"),
         "staticmethod": ObjType(translation("static method"), "meth", "obj"),
         "attribute": ObjType(translation("attribute"), "attr", "obj"),
+        "enum": ObjType(translation("enumeration"), "enum", "obj"),
         "module": ObjType(translation("module"), "mod", "obj"),
         "script": ObjType(translation("script"), "scpt", "obj"),
         "application": ObjType(translation("application"), "app", "obj"),
@@ -684,6 +688,7 @@ class MATLABDomain(Domain):
         "classmethod": MatClassmember,
         "staticmethod": MatClassmember,
         "attribute": MatClassmember,
+        "enum": MatClassmember,
         "module": MatModule,
         "currentmodule": MatCurrentModule,
         "decorator": MatDecoratorFunction,
@@ -904,7 +909,7 @@ def setup(app):
         "mat", "autoattribute", mat_directives.MatlabAutodocDirective
     )
 
-    app.registry.add_documenter("mat:enum", doc.MatAttributeDocumenter)
+    app.registry.add_documenter("mat:enum", doc.MatEnumerationDocumenter)
     app.add_directive_to_domain(
         "mat", "autoenum", mat_directives.MatlabAutodocDirective
     )
