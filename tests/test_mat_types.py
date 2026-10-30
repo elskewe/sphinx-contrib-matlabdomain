@@ -1112,14 +1112,10 @@ def test_f_with_input_argument_block(dir_test_data):
     assert obj.args["a2"]["docstring"] == "another input"
 
 
-def test_argument_block_string_default(tmp_path):
-    mfile = tmp_path / "f_string_default.m"
-    mfile.write_text(
-        'function f(s)\narguments\n    s string = "foo" % a string\nend\nend\n',
-        encoding="utf-8",
-    )
+def test_argument_block_string_default(dir_test_data):
+    mfile = dir_test_data / "f_with_string_argument_default.m"
 
-    obj = MatObject.parse_mfile(mfile, "f_string_default", "test_data")
+    obj = MatObject.parse_mfile(mfile, "f_with_string_argument_default", "test_data")
 
     assert obj.args["s"]["type"] == "string"
     assert obj.args["s"]["default"] == '"foo"'
